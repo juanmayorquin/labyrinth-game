@@ -1,4 +1,6 @@
 import random
+
+
 def get_labyrinth():
     maze = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -26,14 +28,16 @@ def get_labyrinth():
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     ]
 
-    # Posición del jugador (S) y enemigos (2) extraída del laberinto
     player_pos = None
+    goal_pos = None
     enemies_pos = []
 
     # Buscar las posiciones del jugador y enemigos en el laberinto
     for row in range(len(maze)):
         for col in range(len(maze[row])):
-            if maze[row][col] == "S":
+            if maze[row][col] == "E":
+                goal_pos = [row, col]  # Guardar la posición del objetivo
+            elif maze[row][col] == "S":
                 player_pos = [row, col]  # Guardar la posición del jugador
             elif maze[row][col] == 2:
                 if (
@@ -45,7 +49,7 @@ def get_labyrinth():
                         [
                             row,
                             col,
-                            random.choice([0,1]),
+                            random.choice([0, 1]),
                         ]  # Guardar posición de jugador, con dirección hacia arriba o abajo
                     )
                 elif (
@@ -61,4 +65,4 @@ def get_labyrinth():
                         ]  # Guardar posición de jugador, con dirección hacia la derecha o izquierda
                     )
 
-    return maze, player_pos, enemies_pos
+    return maze, player_pos, goal_pos, enemies_pos
