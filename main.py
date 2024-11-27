@@ -79,11 +79,10 @@ def drawInstructions():
 def drawGame():
     global frame_count, state
     maze, player_pos, goal_pos, enemies_pos = get_labyrinth()
-    
+
     # Ajustar tamaño de la ventana según el laberinto
     screen_width = len(maze[0]) * CELL_SIZE
     screen_height = len(maze) * CELL_SIZE
-    
     # Actualizar el objeto screen globalmente
     global screen
     screen = pygame.display.set_mode((screen_width, screen_height))
@@ -97,13 +96,20 @@ def drawGame():
         renderEnemies(enemies_pos)
         renderGoal(goal_pos)
 
-
         # Manejar eventos
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # Cerrar el juego
                 running = False
+                pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
+                # Regresar al menú si se presiona ESC
+                if event.key == pygame.K_ESCAPE:
+                    state = "MENU"
+                    return  # Salir de drawGame y regresar al bucle principal
+
+                # Mover al jugador
                 player_pos = playerMovement(event, player_pos, maze)
 
         # Mover enemigos
@@ -112,6 +118,11 @@ def drawGame():
         # Verificar si el jugador ha chocado con un enemigo
         if checkCollisions(player_pos, enemies_pos):
             state = "GAME_OVER"  # Cambiar el estado a Game Over
+            return state  # Retorna el nuevo estado
+
+        # Verificar si el jugador ha llegado al objetivo
+        if player_pos == goal_pos:
+            state = "VICTORIA"  # Cambiar el estado a Victoria
             return state  # Retorna el nuevo estado
 
         # Aumentar el contador de fotogramas
