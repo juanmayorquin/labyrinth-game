@@ -7,15 +7,12 @@ pygame.init()
 
 # Recuperar laberinto y posiciones
 maze, player_pos, enemies_pos = get_labyrinth()
-
 # Configuración de variables
 CELL_SIZE = 30  # Tamaño de cada celda en píxeles
 ROWS = len(maze)  # Número de filas
 COLS = len(maze[0])  # Número de columnas
 FPS = 30
-ENEMY_MOVE_DELAY = (
-    15  # Número de fotogramas que deben pasar antes de que un enemigo se mueva
-)
+ENEMY_MOVE_DELAY = 15  # Número de fotogramas que deben pasar antes de que un enemigo se mueva
 
 frame_count = 0  # Contador de fotogramas
 
@@ -28,7 +25,6 @@ clock = pygame.time.Clock()
 
 # Color del jugador
 PLAYER_COLOR = (0, 0, 255)
-
 
 def renderMaze():
     # Dibujar maze
@@ -81,18 +77,18 @@ def playerMovement(event, player_pos, maze):
 
 
 def checkCollisions(player_pos, enemies_pos):
-    if player_pos in enemies_pos:
-        return True  # El jugador ha chocado con un enemigo
+    for enemy in enemies_pos:
+        if player_pos == enemy[:2]:  # Comparamos solo las primeras dos coordenadas
+            return True  # El jugador ha chocado con un enemigo
     return False
 
 
+
 # Función para mover los enemigos
-def moveEnemies(enemies_pos, maze):
+def moveEnemies(enemies_pos, maze, frame_count):
     if frame_count % ENEMY_MOVE_DELAY == 0:
         for enemy in enemies_pos:
-            direction = enemy[
-                2
-            ]  # Dirección actual del enemigo (0 = arriba, 1 = abajo, 2 = izquierda, 3 = derecha)
+            direction = enemy[2]  # Dirección actual del enemigo (0 = arriba, 1 = abajo, 2 = izquierda, 3 = derecha)
             # Movimiento según la dirección
             if direction == 0:  # Arriba
                 next_pos = [enemy[0] - 1, enemy[1]]
@@ -122,102 +118,38 @@ def moveEnemies(enemies_pos, maze):
                     enemy[2] = 2  # Cambiar a izquierda
 
 
-def drawGame():
-    global player_pos, enemies_pos, frame_count
-
-    screen.fill((0, 0, 0))
-
-    renderMaze()
-    renderPlayer(player_pos)
-    renderEnemies(enemies_pos)
-
-    # Manejar eventos
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:  # Cerrar el juego
-            running = False
-
-        if event.type == pygame.KEYDOWN:
-            player_pos = playerMovement(event, player_pos, maze)
-
-    # Mover enemigos
-    moveEnemies(enemies_pos, maze)
-
-    # Verificar si el jugador ha chocado con un enemigo
-    if checkCollisions(player_pos, enemies_pos):
-        print("¡El jugador ha sido alcanzado por un enemigo!")
-        running = False
-
-    # Aumentar el contador de fotogramas
-    frame_count += 1
-
-    pygame.display.update()
-    clock.tick(FPS)  # Limitar los fotogramas por segundo
-
-
-# Configuración de colores
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-
-# Estado global
-state = "MENU"  # Puede ser "MENU", "JUEGO", "INSTRUCCIONES"
-
-# Fuente para los textos
-font = pygame.font.SysFont(None, 36)
-
-
-def drawMenu():
-    screen.fill(WHITE)
-
-    title_text = font.render("Escape Labyrinth", True, BLUE)
-    screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, 50))
-
-    # Opciones del menú
-    options = ["Iniciar Juego", "Instrucciones", "Salir"]
-    for i, option in enumerate(options):
-        option_text = font.render(option, True, BLACK)
-        screen.blit(
-            option_text, (WIDTH // 2 - option_text.get_width() // 2, 150 + i * 50)
-        )
-
-    pygame.display.update()
-
-
-def drawInstructions():
-    screen.fill(WHITE)
-
-    instructions_text = font.render("Instrucciones del Juego", True, GREEN)
-    screen.blit(
-        instructions_text, (WIDTH // 2 - instructions_text.get_width() // 2, 50)
-    )
-
-    instructions = [
-        "Usa las teclas de flecha para mover al jugador.",
-        "Evita los enemigos y llega a la salida.",
-        "Los enemigos se mueven de manera predefinida.",
-        "Presiona ESC para regresar al menú.",
-    ]
-    for i, line in enumerate(instructions):
-        line_text = font.render(line, True, BLACK)
-        screen.blit(line_text, (50, 150 + i * 40))
-
-    pygame.display.update()
-
-
-def drawGame():
-    screen.fill(BLACK)
-    # Aquí iría el código para dibujar el juego (por ejemplo, laberinto, jugador, enemigos)
-    pygame.display.update()
-
-
 # Bucle principal
 def main():
+    global player_pos, enemies_pos, frame_count
     running = True
-
     while running:
-        drawGame()
+        screen.fill((0, 0, 0))
+
+        renderMaze()
+        renderPlayer(player_pos)
+        renderEnemies(enemies_pos)
+
+        # Manejar eventos
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # Cerrar el juego
+                running = False
+
+            if event.type == pygame.KEYDOWN:
+                player_pos = playerMovement(event, player_pos, maze)
+
+        # Mover enemigos
+        moveEnemies(enemies_pos, maze, frame_count)
+
+        # Verificar si el jugador ha chocado con un enemigo
+        if checkCollisions(player_pos, enemies_pos):
+            print("¡El jugador ha sido alcanzado por un enemigo!")
+            running = False
+
+        # Aumentar el contador de fotogramas
+        frame_count += 1
+
+        pygame.display.update()
+        clock.tick(FPS)  # Limitar los fotogramas por segundo
 
     pygame.quit()
     sys.exit()
